@@ -1,12 +1,17 @@
 name: 01 - CI
 
 on:
-  # Trigger the workflow on push to main branch
+  # Run tests when a pull request targets main
+  pull_request:
+    branches:
+      - main
+
+  # Build and publish images after the change is merged to main
   push:
     branches:
       - main
-  
-  # Manual trigger for the workflow
+
+  # Manual trigger
   workflow_dispatch:
 
 
