@@ -1,3 +1,4 @@
+# Demonstration: trigger the Week 08 CI workflow
 name: 01 - CI
 
 on:
