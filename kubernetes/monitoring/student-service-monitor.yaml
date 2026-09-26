@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: student-service
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - staging
+  selector:
+    matchLabels:
+      app: student-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
