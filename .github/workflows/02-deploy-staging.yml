@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout tested commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -37,6 +37,21 @@ jobs:
             --resource-group ${{ vars.AKS_RESOURCE_GROUP }} \
             --name ${{ vars.AKS_CLUSTER_NAME }} \
             --overwrite-existing
+
+      - name: Deploy Prometheus and Grafana
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+            --namespace monitoring \
+            --create-namespace \
+            --wait \
+            --timeout 10m
+
+      - name: Verify monitoring components
+        run: |
+          kubectl get pods -n monitoring
+          kubectl get services -n monitoring
 
       - name: Create staging namespace
         run: |
@@ -71,6 +86,10 @@ jobs:
         run: |
           kubectl apply \
             -f kubernetes/staging/
+      - name: Configure student-service metrics collection
+        run: |
+          kubectl apply -f kubernetes/monitoring/student-service-monitor.yaml
+          kubectl get servicemonitor student-service -n monitoring
 
       - name: Update frontend image
         run: |
